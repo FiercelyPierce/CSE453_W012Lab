@@ -13,9 +13,3 @@ class Control(Enum):
     Confidential = 2
     Privileged = 3
     Secret = 4
-
-    def authenticate(self,username,password):
-        pass
-
-    def securityConditionRead(self, assetControl, subjectControl):
-        pass
