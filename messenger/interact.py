@@ -2,28 +2,27 @@
 # COMPONENT:
 #    INTERACT
 # Author:
-#    Br. Helfrich, Kyle Mueller, <your name here if you made a change>
+#    Br. Helfrich, Kyle Mueller, Jerry Lane
 # Summary: 
 #    This class allows one user to interact with the system
 ########################################################################
-
-import messages, control
 
 ###############################################################
 # USER
 # User has a name and a password
 ###############################################################
 class User:
-    def __init__(self, name, password):
+    def __init__(self, name, password, access):
         self.name = name
         self.password = password
+        self.access = access
 
 userlist = [
-   [ "AdmiralAbe",     "password" ],  
-   [ "CaptainCharlie", "password" ], 
-   [ "SeamanSam",      "password" ],
-   [ "SeamanSue",      "password" ],
-   [ "SeamanSly",      "password" ]
+   [ "AdmiralAbe",     "password", "Secret" ],  
+   [ "CaptainCharlie", "password", "Privileged" ], 
+   [ "SeamanSam",      "password", "Confidential" ],
+   [ "SeamanSue",      "password", "Confidential" ],
+   [ "SeamanSly",      "password", "Confidential" ]
 ]
 
 ###############################################################
@@ -44,8 +43,7 @@ class Interact:
     # INTERACT CONSTRUCTOR
     # Authenticate the user and get him/her all set up
     ##################################################
-    def __init__(self, username, password, messages):
-        self._authenticate(username, password)
+    def __init__(self, username, messages):
         self._username = username
         self._p_messages = messages
 
@@ -53,9 +51,9 @@ class Interact:
     # INTERACT :: SHOW
     # Show a single message
     ##################################################
-    def show(self):
+    def show(self, access):
         id_ = self._prompt_for_id("display")
-        if not self._p_messages.show(id_):
+        if not self._p_messages.show(id_, access):
             print(f"ERROR! Message ID \'{id_}\' does not exist")
         print()
 
@@ -63,38 +61,51 @@ class Interact:
     # INTERACT :: DISPLAY
     # Display the set of messages
     ################################################## 
-    def display(self):
+    def display(self, access):
         print("Messages:")
-        self._p_messages.display()
+        self._p_messages.display(access)
         print()
 
     ##################################################
     # INTERACT :: ADD
     # Add a single message
     ################################################## 
-    def add(self):
-        self._p_messages.add(self._prompt_for_line("message"),
-                             self._username,
-                             self._prompt_for_line("date"))
+    def add(self, access):
+        clearance = self._prompt_for_line("clearance level for this message")
+        if access.can_write( [ "", "", "", clearance] ):
+            self._p_messages.add(self._prompt_for_line("message"),
+                                self._username,
+                                self._prompt_for_line("date"),
+                                clearance)
+        else:
+            print("You cannot write to this clearance level.")
 
     ##################################################
     # INTERACT :: UPDATE
     # Update a single message
     ################################################## 
-    def update(self):
+    def update(self, access):
         id_ = self._prompt_for_id("update")
-        if not self._p_messages.show(id_):
+        if not self._p_messages.show(id_, access):
             print(f"ERROR! Message ID \'{id_}\' does not exist\n")
             return
-        self._p_messages.update(id_, self._prompt_for_line("message"))
-        print()
+        if access.can_read(self._p_messages.get_message(id_)):
+            if access.can_write(self._p_messages.get_message(id_)):
+                self._p_messages.update(id_, self._prompt_for_line("message"))
+                print()
+            else:
+                print(f"\tThis message cannot be updated by you.\n")
             
     ##################################################
     # INTERACT :: REMOVE
     # Remove one message from the list
     ################################################## 
-    def remove(self):
-        self._p_messages.remove(self._prompt_for_id("delete"))
+    def remove(self, access):
+        id = self._prompt_for_id("delete")
+        if access.can_read(self._p_messages.get_message(id)):
+            self._p_messages.remove(id)
+        else:
+            print(f"Unknown Messaget\n")
 
     ##################################################
     # INTERACT :: PROMPT FOR LINE
@@ -109,14 +120,6 @@ class Interact:
     ################################################## 
     def _prompt_for_id(self, verb):
         return int(input(f"Select the message ID to {verb}: "))
-
-    ##################################################
-    # INTERACT :: AUTHENTICATE
-    # Authenticate the user: find their control level
-    ################################################## 
-    def _authenticate(self, username, password):
-        id_ = self._id_from_user(username)
-        return ID_INVALID != id_ and password == users[id_].password
 
     ##################################################
     # INTERACT :: ID FROM USER

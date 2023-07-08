@@ -2,12 +2,12 @@
 # COMPONENT:
 #    MESSAGES
 # Author:
-#    Br. Helfrich, Kyle Mueller, <your name here if you made a change>
+#    Br. Helfrich, Kyle Mueller, Jerry Lane
 # Summary: 
 #    This class stores the notion of a collection of messages
 ########################################################################
 
-import control, message
+import message
 
 ##################################################
 # MESSAGES
@@ -27,18 +27,18 @@ class Messages:
     # MESSAGES :: DISPLAY
     # Display the list of messages
     ################################################## 
-    def display(self):
+    def display(self, access):
         for m in self._messages:
-            m.display_properties()
+            m.display_properties(access)
 
     ##################################################
     # MESSAGES :: SHOW
     # Show a single message
     ################################################## 
-    def show(self, id):
+    def show(self, id, access):
         for m in self._messages:
             if m.get_id() == id:
-                m.display_text()
+                m.display_text(access)
                 return True
         return False
 
@@ -64,8 +64,8 @@ class Messages:
     # MESSAGES :: ADD
     # Add a new message
     ################################################## 
-    def add(self, text, author, date):
-        m = message.Message(text, author, date)
+    def add(self, text, author, date, access):
+        m = message.Message(text, author, date, access)
         self._messages.append(m)
 
     ##################################################
@@ -77,8 +77,18 @@ class Messages:
             with open(filename, "r") as f:
                 for line in f:
                     text_control, author, date, text = line.split('|')
-                    self.add(text.rstrip('\r\n'), author, date)
+                    self.add(text.rstrip('\r\n'), author, date, text_control)
 
         except FileNotFoundError:
             print(f"ERROR! Unable to open file \"{filename}\"")
             return
+        
+    ##################################################
+    # MESSAGES :: GET MESSAGE
+    # Return message list from the Message class if it
+    # exists
+    ##################################################
+    def get_message(self, id):
+        for m in self._messages:
+            if m.get_id() == id:
+                return m.get_message()

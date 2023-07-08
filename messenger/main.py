@@ -2,7 +2,7 @@
 # Program:
 #    Lab 12, Bell-LaPadula
 # Author:
-#    Br. Helfrich, Kyle Mueller, <your name here if you made a change>
+#    Br. Helfrich, Kyle Mueller, Jerry Lane
 # Summary: 
 #    This program is designed to keep track of a number of secret
 #    messages. IT will display messages to the appropriate users
@@ -10,7 +10,7 @@
 ########################################################################
 
 from os import path
-import interact, messages
+import interact, messages, control
 
 # Gets the absolute path of the "messages.txt" file
 FILE_NAME = path.join(path.dirname(path.abspath(__file__)), "messages.txt")
@@ -55,17 +55,25 @@ def session(messages):
     username = simple_prompt("\nWhat is your username? ")
     password = simple_prompt("What is your password? ")
 
-    interact_ = interact.Interact(username, password, messages)
-    print(f"\nWelcome, {username}. Please select an option:\n")
-    display_options()
-
+    interact_ = interact.Interact(username, messages)
+    control_ = control.Control(username, password, messages)
+    authenticated = control_.authenticate()
+    if authenticated:
+        print(f"\nWelcome, {username}. Please select an option:\n")
+        display_options()
+    else:
+        print(f"\n{username} is not an authorized user.\n")
+        close_session()
+        return -1
+ 
+  
     options = {
         "o": "print('Options:'); display_options();",
-        "d": "interact_.display();",
-        "s": "interact_.show();",
-        "a": "interact_.add();",
-        "u": "interact_.update();",
-        "r": "interact_.remove();",
+        "d": "interact_.display(control_);",
+        "s": "interact_.show(control_);",
+        "a": "interact_.add(control_);",
+        "u": "interact_.update(control_);",
+        "r": "interact_.remove(control_);",
         "l": "print(f'Goodbye, {username}{chr(10)}'); close_session();"
     }
 
@@ -82,7 +90,8 @@ def main():
 
     done = False
     while not done:
-        session(messages_)
+        if session(messages_) == -1:
+            break
         done = input("Will another user be logging in? (y/n) ").upper() != "Y"
 
     return 0
