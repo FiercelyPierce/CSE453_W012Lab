@@ -2,7 +2,7 @@
 # COMPONENT:
 #    CONTROL
 # Author:
-#    Br. Helfrich, Kyle Mueller, Pierce Cirks, Jerry Lane
+#    Br. Helfrich, Kyle Mueller, Pierce Cirks, Jerry Lane, Bryer Johnson
 # Summary: 
 #    This class stores the notion of Bell-LaPadula
 ########################################################################
@@ -91,3 +91,6 @@ class Control():
         if access not in self._classifications:
             return -1
         return self._classifications.index(access)
+    
+    
+

@@ -2,7 +2,7 @@
 # COMPONENT:
 #    INTERACT
 # Author:
-#    Br. Helfrich, Kyle Mueller, Jerry Lane
+#    Br. Helfrich, Kyle Mueller, Jerry Lane, Bryer Johnson
 # Summary: 
 #    This class allows one user to interact with the system
 ########################################################################
@@ -11,6 +11,8 @@
 # USER
 # User has a name and a password
 ###############################################################
+
+
 class User:
     def __init__(self, name, password, access):
         self.name = name
@@ -138,3 +140,6 @@ class Interact:
 def display_users():
     for user in users:
         print(f"\t{user.name}")
+        
+
+
