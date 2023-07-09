@@ -140,6 +140,3 @@ class Interact:
 def display_users():
     for user in users:
         print(f"\t{user.name}")
-        
-
-
